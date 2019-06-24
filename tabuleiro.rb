@@ -11,9 +11,9 @@ class Tabuleiro
     attr_accessor :grid
 
 
-    def initialize
+    def initialize(new_game: true)
         @grid = Array.new(8){Array.new(8)}
-        new_game
+        new_game() if new_game
     end
 
 
@@ -21,7 +21,7 @@ class Tabuleiro
         letters = ('A'..'H').to_a
         ('0'..'7').to_a.each{|num| print"\t#{num}"}
         @grid.each_with_index do |coluna, index|
-            print "\n#{letters[index]}\t"
+            print "\n#{letters[index]}#{index}\t"
             coluna.each do |casa|
                 if casa == nil 
                     print "-\t"
@@ -33,6 +33,11 @@ class Tabuleiro
         end
     end
     
+    def []=(pos, peca)
+        raise OffBoardError unless valid_pos?(pos)
+        x, y = pos
+        @grid[x][y] = peca
+    end
 
     def [](pos)
         raise OffBoardError.new(pos) unless valid_pos? pos
@@ -52,6 +57,16 @@ class Tabuleiro
 
     def valid_pos?(pos)
         pos.all?{|pos| (pos >= 0 && pos < Tabuleiro::LENGTH)}
+    end
+    
+    def has_enemy_piece?(pos, time)
+        raise new OffBoardError(pos) unless valid_pos?(pos)
+        x, y = pos
+        if(!grid_empty?(pos) && (self[pos].time != time))
+            return true
+        else 
+            return false
+        end
     end
     
     def grid_empty?(pos)
@@ -98,12 +113,16 @@ class Tabuleiro
 
     public
 
+    def tile_between_pos(src, dest)
+        ((Vector.elements(src) + Vector.elements(dest)) / 2).to_a
+    end
+
     def mover(destination, source)
         x, y = source
         peca = @grid[x][y]
         begin
             puts "Jogando de: #{source} para: #{destination}"
-            peca.make_simple_move(destination)
+            peca.make_move(destination)
         rescue InvalidMoveError => e
             puts e
         end

@@ -46,9 +46,9 @@ RSpec.describe Peca, "#simple_moves" do
 
         end
 
-        it "should return adjascent tiles" do 
-            time1 = [[6,1], [5, 2]]
-            time2 = [[6,3]]
+        it "should promote pieces" do 
+            time2 = [[1, 2], [5, 3]]
+            time1 = [[6, 2], [4, 4], [2, 4], [2, 2]]
 
             tabuleiro = Tabuleiro.new(new_game: false)
             time1.each do |pos| 
@@ -57,14 +57,18 @@ RSpec.describe Peca, "#simple_moves" do
             time2.each do |pos|   
                 tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
             end
-            peca = tabuleiro[time1.first]
+            peca1 = tabuleiro[time1.first]
             peca2 = tabuleiro[time2.first]
-            
+            tabuleiro.mover([0, 1], [1, 2])
+            tabuleiro.mover([7 ,1], [6, 2])
             tabuleiro.draw
-            expect(peca.adjascent_tiles).to eq([[7,2], [7,0]])
-            expect(peca2.adjascent_tiles).to eq([[5,4], [5,2]])
+            expect(peca1.promotable?).to eq(true)
+            expect(peca2.promotable?).to eq(true)
+            expect(peca1.tipo).to eq(:queen)
+            expect(peca2.tipo).to eq(:queen)
+            
+            
         end
-
 
         # it "should promote piece" do 
         #     time2 = [[6,1], [5, 2]]

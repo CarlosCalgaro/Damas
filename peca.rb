@@ -156,9 +156,9 @@ class Peca
 
     def promotable?
         if(@time == :time1)
-            return (@pos.first == 0)
-        else
             return (@pos.first == 7)
+        else
+            return (@pos.first == 0)
         end
     end
 

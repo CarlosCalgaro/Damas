@@ -36,7 +36,7 @@ class Peca
     public
     def simple_moves
         valid_moves = []
-        diffs = MOVE_DIFFS[:simple][@time.to_sym]
+        diffs = get_diffs
         diffs.each do |move| 
             new_pos = Vector.elements(@pos) + Vector.elements(move)
             if(@board.valid_pos?(new_pos) && @board.grid_empty?(new_pos))
@@ -64,7 +64,7 @@ class Peca
 
     def jump_moves(pos = @pos, moves = [])
         valid_moves = []
-        diffs = MOVE_DIFFS[:simple][@time.to_sym]
+        diffs = get_diffs();
         diffs.each do |move|
             new_pos = (Vector.elements(pos) + Vector.elements(move)).to_a
             if(@board.valid_pos?(new_pos))
@@ -79,6 +79,13 @@ class Peca
         return valid_moves
     end
 
+    def get_diffs
+        if(promoted?)
+            return MOVE_DIFFS[:simple][:time1] + MOVE_DIFFS[:simple][:time2]  
+        else
+            return MOVE_DIFFS[:simple][@time.to_sym]
+        end
+    end
     # def jump_moves(pos = @pos, moves = [])
         
     #     diffs = MOVE_DIFFS[:simple][@time.to_sym]
@@ -117,7 +124,6 @@ class Peca
     end
     
     def make_jump_move(pos)
-        
         return false unless valid_move?(pos)
         @board.remove_piece(@pos)
         @board.remove_piece(@board.tile_between_pos(@pos, pos))

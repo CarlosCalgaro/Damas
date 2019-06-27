@@ -70,6 +70,38 @@ RSpec.describe Peca, "#simple_moves" do
             
         end
 
+        it "should move all directions when is queen" do 
+            
+            time2 = [[1, 2], [5, 3]]
+            time1 = [[6, 2], [4, 4], [2, 4], [2, 2]]
+            tabuleiro = Tabuleiro.new(new_game: false)
+            time1.each do |pos| 
+                tabuleiro[pos] = Peca.new(tabuleiro, :time1, pos)
+            end
+            time2.each do |pos|   
+                tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
+            end
+            peca = tabuleiro[time1.first]
+            tabuleiro.mover([7,1], [6,2])
+            expect(tabuleiro.mover([6,2], [7,1])).to eq(true)
+        end
+
+        it "should eat all directions when is queen" do 
+            
+            time2 = [[6, 3], [5, 3]]
+            time1 = [[6, 1], [4, 4], [2, 4], [2, 2]]
+            tabuleiro = Tabuleiro.new(new_game: false)
+            time1.each do |pos| 
+                tabuleiro[pos] = Peca.new(tabuleiro, :time1, pos)
+            end
+            time2.each do |pos|   
+                tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
+            end
+            peca = tabuleiro[time1.first]
+            tabuleiro.draw
+            binding.pry
+            expect(tabuleiro.mover([6,2], [7,1])).to eq(true)
+        end
         # it "should promote piece" do 
         #     time2 = [[6,1], [5, 2]]
         #     time1 = [[6,3]]

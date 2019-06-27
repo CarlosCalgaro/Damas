@@ -1,9 +1,9 @@
-#require 'rubygems'
-#require 'bundler/setup'
+require 'rubygems'
+require 'bundler/setup'
 require_relative 'peca'
 require_relative 'errors/off_board_error'
 
-#Bundler.require(:default)
+Bundler.require(:default)
 
 class Tabuleiro 
 
@@ -125,7 +125,9 @@ class Tabuleiro
             peca.make_move(destination)
         rescue InvalidMoveError => e
             puts e
+            return false
         end
+        return true
     end
 
 end

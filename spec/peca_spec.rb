@@ -61,8 +61,7 @@ RSpec.describe Peca, "#simple_moves" do
             peca2 = tabuleiro[time2.first]
             tabuleiro.mover([0, 1], [1, 2])
             tabuleiro.mover([7 ,1], [6, 2])
-            tabuleiro.draw
-            expect(peca1.promotable?).to eq(true)
+             expect(peca1.promotable?).to eq(true)
             expect(peca2.promotable?).to eq(true)
             expect(peca1.tipo).to eq(:queen)
             expect(peca2.tipo).to eq(:queen)
@@ -98,27 +97,24 @@ RSpec.describe Peca, "#simple_moves" do
                 tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
             end
             peca = tabuleiro[time1.first]
-            tabuleiro.draw
-            binding.pry
-            expect(tabuleiro.mover([6,2], [7,1])).to eq(true)
+            tabuleiro.mover([7,2], [6,1])
+            expect(tabuleiro.mover([5,4], [7,2])).to eq(true)
         end
-        # it "should promote piece" do 
-        #     time2 = [[6,1], [5, 2]]
-        #     time1 = [[6,3]]
+    end
 
-        #     tabuleiro = Tabuleiro.new(new_game: false)
-        #     time1.each do |pos| 
-        #         tabuleiro[pos] = Peca.new(tabuleiro, :time1, pos)
-        #     end
-        #     time2.each do |pos|   
-        #         tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
-        #     end
-        #     tabuleiro.draw
-        #     expect(peca.jump_moves).to eq([[3,3]])
-        #     expect(peca2.jump_moves).to(eq([[3, 5], [3,1]]))
-        # end
-
-
-
+    context "Should win if" do 
+        it "eat last piece" do 
+            time2 = [[6, 1]]
+            time1 = [[5, 2], [4, 4], [2, 4], [2, 2]]
+            tabuleiro = Tabuleiro.new(new_game: false)
+            time1.each do |pos| 
+                tabuleiro[pos] = Peca.new(tabuleiro, :time1, pos)
+            end
+            time2.each do |pos|   
+                tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
+            end
+            tabuleiro.mover([7,0], [5,2])
+            expect(tabuleiro.winner).to eq(:time1)
+        end
     end
 end

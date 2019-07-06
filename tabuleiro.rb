@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'yaml'
 require_relative 'peca'
 require_relative 'errors/off_board_error'
 
@@ -8,14 +9,13 @@ Bundler.require(:default)
 class Tabuleiro 
 
     LENGTH = 8
+    
     attr_accessor :grid
-
 
     def initialize(new_game: true)
         @grid = Array.new(8){Array.new(8)}
         new_game() if new_game
     end
-
 
     def draw 
         letters = ('A'..'H').to_a
@@ -69,27 +69,31 @@ class Tabuleiro
         end
     end
     
+    def pieces_count?(time)
+        count = 0 
+        @grid.each do |line|
+            count = count + line.select{|e| !e.nil? && e.time == time}.size
+        end
+        return count
+    end
+
     def grid_empty?(pos)
         return @grid[pos[0]][pos[1]].nil?
     end
     
-    def dup
-        test_board = Tabuleiro.new(false)
-        @grid.each_index do |row|
-          @grid[row].each_with_index do |piece, col|
-            pos = [row,col]
-            piece = self[pos]
-            test_board[pos] = piece ? piece.dup(test_board) : nil
-          end
-        end
-    
-        test_board
-      end
-
     private
 
     def new_game
-    
+        # time2 = [[4, 2]]
+        # time1 = [[3, 1], [2, 1], [2, 4], [2, 2]]
+
+        # time1.each do |pos| 
+        #     self[pos] = Peca.new(self, :time1, pos)
+        # end
+        # time2.each do |pos|   
+        #     self[pos] = Peca.new(self, :time2, pos)
+        # end
+
         (0..2).each do |x|
             (0..7).each do |y|
                 if(x == 1)
@@ -109,25 +113,32 @@ class Tabuleiro
                 end
             end
         end
+        c = [0,2]
+        self[c] = nil
+        mover([3,1], [2, 0])
+        mover( [4, 2], [5, 1])
     end
 
     public
 
+    def serialize
+       return YAML::dump(self)
+    end
+
+    def self.load(str)
+        return YAML::load(str)
+    end
+    
     def tile_between_pos(src, dest)
         ((Vector.elements(src) + Vector.elements(dest)) / 2).to_a
     end
 
     def mover(destination, source)
         x, y = source
+        return :error if !valid_pos?(destination) || !valid_pos?(source)
         peca = @grid[x][y]
-        begin
-            puts "Jogando de: #{source} para: #{destination}"
-            peca.make_move(destination)
-        rescue InvalidMoveError => e
-            puts e
-            return false
-        end
-        return true
+        return :error if peca.nil?
+        return peca.make_move(destination)
     end
 
 end

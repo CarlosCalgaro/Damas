@@ -1,4 +1,4 @@
-require_relative "../tabuleiro.rb"
+require_relative "../tabuleiro"
 
 RSpec.describe Tabuleiro, "Tabuleiro" do
     context "All possiblities" do 
@@ -10,6 +10,22 @@ RSpec.describe Tabuleiro, "Tabuleiro" do
         end
     end
 
+    context "#pieces_count?" do 
+        it "Should show pieces count for time" do 
+            time2 = [[1, 2], [5, 3]]
+            time1 = [[6, 2], [4, 4], [2, 4], [2, 2]]
+            tabuleiro = Tabuleiro.new(new_game: false)
+            time1.each do |pos| 
+                tabuleiro[pos] = Peca.new(tabuleiro, :time1, pos)
+            end
+            time2.each do |pos|   
+                tabuleiro[pos] = Peca.new(tabuleiro, :time2, pos)
+            end
+
+            expect(tabuleiro.pieces_count?(:time1)).to eq(4)
+            expect(tabuleiro.pieces_count?(:time2)).to eq(2)
+        end
+    end
 
     context "#has_enemy_piece" do 
         it "Should display if has enemy piece in position" do 
@@ -29,6 +45,24 @@ RSpec.describe Tabuleiro, "Tabuleiro" do
             pos = [0, 0]
             expect(tabuleiro[pos]).to eq(nil)
         end
+    end
+
+    context "#serialize" do 
+        it "should retrieve the correct state of the board" do 
+            tabuleiro = Tabuleiro.new
+            string = tabuleiro.serialize
+            tabuleiro2 = Tabuleiro.load(string)
+            expect(tabuleiro).to eq(tabuleiro)
+        end
+
+        it "should retrieve the correct state of the board even if piece moved" do 
+            tabuleiro = Tabuleiro.new
+            tabuleiro.mover([3,1] , [2,0])
+            string = tabuleiro.serialize
+            tabuleiro2 = Tabuleiro.load(string)
+            expect(tabuleiro).to eq(tabuleiro)
+        end
+
     end
 
 

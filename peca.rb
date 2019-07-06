@@ -1,23 +1,19 @@
 require 'matrix'
-require_relative 'errors/invalid_move_error'
 require_relative 'errors/invalid_time_error'
 
 class Peca
 
-    attr_accessor :time, :tipo, :valid_jump_moves
+    attr_accessor :time, :tipo
     attr_reader :pos
 
     MOVE_DIFFS = {
         simple: {
-            time1: [[1, 1], [1, -1]],
+            time1: [[1, 1], [1 , -1]],
             time2: [[-1,1], [-1, -1]]
         }
     }
 
-    
     def initialize(board, time, pos)
-
-        @valid_jump_moves = [ ]
         @board = board
         @time = time
         @tipo = :pawn
@@ -32,7 +28,16 @@ class Peca
     def valid_move?(destination)
         return valid_moves.include?(destination)
     end
+
+    def valid_jump_move?(destination)
+        return jump_moves.include?(destination)
+    end
     
+
+    def valid_simple_move?(destination)
+        return simple_moves.include?(destination)
+    end
+
     public
     def simple_moves
         valid_moves = []
@@ -44,13 +49,6 @@ class Peca
             end
         end
         return valid_moves
-    end
-
-
-    def dup(board)
-        new_piece = Piece.new(board, color, pos)
-        new_piece.promote if promoted?
-        new_piece
     end
 
     def has_enemy_piece?(pos)
@@ -86,53 +84,56 @@ class Peca
             return MOVE_DIFFS[:simple][@time.to_sym]
         end
     end
-    # def jump_moves(pos = @pos, moves = [])
-        
-    #     diffs = MOVE_DIFFS[:simple][@time.to_sym]
-    #     diffs.each do |move|
-    #         new_pos = (Vector.elements(pos) + Vector.elements(move)).to_a
-    #         #binding.pry if(pos == [3, 3])
-    #         if(@board.valid_pos?(new_pos))
-    #             if(@board.has_enemy_piece?(new_pos, @time))
-    #                 new_pos = (Vector.elements(new_pos) + Vector.elements(move)).to_a
-    #                 if(@board.valid_pos?(new_pos) && @board.grid_empty?(new_pos))
-    #                     # Aqui ocorre 1 pulo !!!!
-    #                     jump_moves(new_pos, moves)
-    #                 end
-    #             else
-    #                 moves.push(new_pos)
-    #                 return moves
-    #             end
-    #         end
-    #     end
-    # end
 
     def is_same_time?(piece)
         return piece.same_time? @time
     end
 
     def make_move(pos)
-        make_simple_move(pos) if !make_jump_move(pos)
+        jump_move = make_jump_move(pos)
+        case jump_move
+        when :error 
+            return make_simple_move(pos) 
+        else 
+            return jump_move
+        end
     end
     
     def make_simple_move(pos)
-        return false unless self.valid_move? pos
+        return :error unless self.valid_move? pos
         @board.remove_piece(@pos)
         @pos = pos
         @board.place_piece(self, pos)
-        promote if (promotable? && !promoted)
+        if(promotable? && !promoted)
+            promote 
+            return :promotion
+        end
+        return :simple_move
     end
     
     def make_jump_move(pos)
-        return false unless valid_move?(pos)
+        return :error unless valid_jump_move?(pos)
         @board.remove_piece(@pos)
         @board.remove_piece(@board.tile_between_pos(@pos, pos))
         @board.place_piece(self, pos)
         @pos = pos
-        promote if promotable? && !promoted?
-        true
+        if(promotable? && !promoted?)
+            promote 
+            return :promotion
+        elsif(won?)
+            return :win
+        end
+        return :jump_move
     end
 
+    def won? 
+        if @time == :time1
+            return (@board.pieces_count?(:time2) == 0 )
+        else 
+            return (@board.pieces_count?(:time1) == 0 )
+        end
+    end
+    
     def same_time?(time)
         raise InvalidTimeError.new(time) unless [:time1, :time2].include? time
         return time == @time
